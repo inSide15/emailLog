@@ -8,6 +8,7 @@ use lib File::Spec->catdir($Bin, 'modules');
 use Dancer2;
 
 use Parsing;
+use ConnectDB;
 
 get '/get_logs/:email' => sub {
     my $email = route_parameters->get('email');
@@ -17,4 +18,8 @@ get '/get_logs/:email' => sub {
     return '@result';
 };
 
-start;
+my $isConnect = ConnectDB::connectToDB();
+
+if ($isConnect) {
+    start;
+}
