@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<title>Email log</title>
+
+		<style>
+			body {
+				background-color: #e0e0e0;
+			}
+			.container-table {
+				text-align: center;
+			}
+			.input-group {
+				margin-bottom: 10px;
+			}
+			.table {
+				width: 100%;
+			}
+			.first-col {
+				width: 30%;
+			}
+			.second-col {
+				width: 70%;
+			}
+			table {
+				border-collapse: separate;
+				border-spacing: 0;
+			}
+			td,
+			th {
+				padding: 2px;
+				border-bottom: 1px solid black;
+				border-right: 1px solid black;
+				min-height: 35px;
+				height: 35px;
+			}
+			table tr td:first-child,
+			table tr th:first-child {
+				border-left: 1px solid black;
+			}
+			table tr th {
+				border-top: 1px solid black;
+			}
+		</style>
+	</head>
+	<body>
+		<div class="input-group">
+			<label>Введите адрес получателя: </label>
+			<input type="text" class="form-control" id="email-input" />
+			<button class="btn" type="button" id="button-add">Получить</button>
+		</div>
+		<div class="container-table" id="container-table" hidden>
+			<table class="table">
+				<thead>
+					<tr>
+						<th scope="col" class="first-col">Время</th>
+						<th scope="col" class="second-col">Лог</th>
+					</tr>
+				</thead>
+				<tbody id="table-body"></tbody>
+			</table>
+		</div>
+	</body>
+</html>
+
+<script>
+	window.$ = window.jQuery;
+
+	const addRowsInTable = (result) => {
+		const rowsData = result.data;
+		const $tableBody = $('#table-body');
+		rowsData.forEach((el) => {
+			const row = document.createElement('tr');
+			const firstCell = document.createElement('td');
+			firstCell.textContent = el.created;
+
+			const secondCell = document.createElement('td');
+			secondCell.textContent = el.str;
+
+			$(row).append([firstCell, secondCell]);
+			$tableBody.append(row);
+		});
+	};
+
+	$('#button-add').click((evt) => {
+		$('#table-body').empty();
+
+		const emailVal = $('#email-input').val();
+		if (!emailVal) {
+			console.error('Введите значение: ' + emailVal);
+			$('#container-table').hide();
+			return;
+		}
+
+		const url = 'http://localhost:3000/get_logs/' + emailVal;
+		fetch(url, {
+			method: 'GET',
+			headers: {
+				Accept: 'application/json',
+			},
+		})
+			.then((response) => response.json())
+			.then((result) => {
+				if (!result || result.error || result.data.length == 0) {
+					console.error('Некорректные данные');
+					return;
+				}
+				$('#container-table').show();
+				if (result.count > 100) {
+					alert(
+						'Количество элементов превышает 100, таблица сокращена'
+					);
+				}
+				addRowsInTable(result);
+			});
+	});
+</script>
