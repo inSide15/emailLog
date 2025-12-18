@@ -27,10 +27,19 @@ sub parseLogFile {
         my %strHash = ();
 
         my $int_id = $splitStr[2];
+        unless ($int_id) {
+            print STDERR 'Отсутствует внутренний id';
+            next;
+        }
+
         $strHash{'int_id'} = $int_id;
 
         my $strDateTime = "$splitStr[0] $splitStr[1]";
         my $parsedDate = $format->parse_datetime($strDateTime);
+        unless ($parsedDate) {
+            print STDERR 'Некорректный формат даты и времени';
+            next;
+        }
 
         $strHash{'created'} = $parsedDate;
 

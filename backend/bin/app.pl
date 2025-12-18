@@ -32,6 +32,9 @@ get '/get_logs/:email' => sub {
     response_header 'Content-Type' => 'application/json';
 
     my $email = route_parameters->get('email');
+    unless ($email) {
+        return to_json({ error => "Адрес не может быть пустым" });
+    }
 
     my $resValues = DBInterface::getValues($dbh, $email);
 
